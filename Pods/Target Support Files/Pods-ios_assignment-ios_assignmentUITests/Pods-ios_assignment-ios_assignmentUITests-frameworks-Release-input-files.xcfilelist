@@ -1,0 +1,3 @@
+${PODS_ROOT}/Target Support Files/Pods-ios_assignment-ios_assignmentUITests/Pods-ios_assignment-ios_assignmentUITests-frameworks.sh
+${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework
+${BUILT_PRODUCTS_DIR}/RSLoadingView/RSLoadingView.framework
