@@ -27,11 +27,16 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        cardView.layer.cornerRadius = 5
-        view.addSubview(draggableCircleView)
+        makeUISetup()
+        
+    }
+    
+    func makeUISetup() {
         createAToastView()
         setUpArrow()
+        setupDraggableCircle()
+        view.addSubview(draggableCircleView)
+
     }
     
     func setUpArrow() {
@@ -39,18 +44,12 @@ class ViewController: UIViewController {
         imageView.frame = CGRect(x: cardView.frame.origin.x + cardView.frame.size.width/2 - 17+0.5, y: cardView.frame.size.height+200, width: 35, height: 25)
         arrowView = imageView
         arrowView.layer.zPosition = 0
-        addBlinkingEffect(On: arrowView)
+        AnimationManager.addBlinkingEffect(On: arrowView)
         self.view.addSubview(arrowView)
     }
     
     func hideArrowView() {
         self.arrowView.isHidden = true
-    }
-    
-    func addBlinkingEffect(On view: UIView) {
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [.repeat, .autoreverse] , animations: {
-            view.alpha = 0
-        })
     }
     
     
@@ -68,12 +67,15 @@ class ViewController: UIViewController {
 
     }
     
-    func setupUI() {
+    func setupDraggableCircle() {
+        
+        cardView.layer.cornerRadius = 5
         containerCircleView.layer.cornerRadius = 55
         let diameterOfCircle:CGFloat = 100
         let view = UIView(frame: CGRect(x: cardView.frame.origin.x + cardView.frame.size.width/2 - 50+0.5, y: cardView.frame.size.height+20, width: diameterOfCircle, height: diameterOfCircle))
         
         //Adding cred's logo on the draggableCiricleView
+        
         draggableCircleView = view
         draggableCircleView.layer.cornerRadius = 50
         draggableCircleView.backgroundColor = UIColor.black
@@ -90,7 +92,7 @@ class ViewController: UIViewController {
         containerCircleView.layer.borderWidth = 5
         
         
-        //Setting view for the buttons.
+        //Setting image for the buttons.
         
         successButton.setImage(UIImage(named: "clickedButton"), for: .selected)
         successButton.setImage(UIImage(named: "unclickedButton"),for: .normal)
@@ -103,6 +105,11 @@ class ViewController: UIViewController {
         selectorView.layer.borderWidth = 2
         selectorView.layer.cornerRadius = 5
     }
+    
+    
+    // Events listener and handlers
+    
+    
     
     @IBAction func successButtonTapped(_ sender: Any) {
         successButton.isSelected = true
@@ -130,12 +137,11 @@ class ViewController: UIViewController {
                 widthOfTheCard.constant = 350 - translation.y / 10
                 topSpaceForSelectorView.constant = 20 + translation.y / 15
             }
-            print(translation.y)
         case .ended :
             print("stopped")
             if !Helper.checkIfViewLies(view: draggableCircleView, inside: containerCircleView) {
                 returnToOlderPos()
-                showTheToast(message: "Oops 😅 !! Pull harder", delay: 0)
+                AnimationManager.showTheToast(message: GeneralStrings.unreached.rawValue , delay: 0, label: self.label, labelPosX: self.labelPosX , labelPosY: self.labelPosY)
             }
             else {
                 self.heightOfCard.constant = 288
@@ -150,22 +156,13 @@ class ViewController: UIViewController {
     
     
     func returnToOlderPos() {
-        UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, animations: {
+        AnimationManager.animateToOldPositions(view: self.draggableCircleView, completion: {
             self.heightOfCard.constant = 288
             self.widthOfTheCard.constant = 350
-            self.draggableCircleView.transform = .identity
             self.topSpaceForSelectorView.constant = 20
         })
     }
     
-    func hideContainerViewWhileLoading() {
-        self.containerCircleView.layer.borderWidth = 0
-    }
-    
-    func showContainerViewAfterLoading() {
-        self.containerCircleView.layer.borderWidth = 5
-
-    }
     
     func makeAnApiCall() {
         let networkManager = Services()
@@ -177,50 +174,35 @@ class ViewController: UIViewController {
             url = failedUrl
         }
         Loaders.showLoader(On: containerCircleView)
-        self.hideContainerViewWhileLoading()
+        AnimationManager.hideViewByReducingBorder(view: containerCircleView)
         self.draggableCircleView.isHidden = true
         networkManager.fetchDataFromServer(endPoint: url, onSuccess: {
             response in
             Loaders.hideLoader(On: self.containerCircleView)
             if(response.success == true) {
-                // This is the success
+                // success == true case
                 self.hideArrowView()
-                self.hideContainerView()
-                self.showTheToast(message: "Woohoo 🥳 !!! Its a success", delay: 1)
+                AnimationManager.hideContainerView(containerCircleView: self.containerCircleView)
+                AnimationManager.showTheToast(message: GeneralStrings.success.rawValue, delay: 1, label: self.label, labelPosX: self.labelPosX, labelPosY:  self.labelPosY)
             }
             else {
+                // success == false case
                 self.draggableCircleView.isHidden = false
-                self.showContainerViewAfterLoading()
-                self.showTheToast(message: "Success false ☹️",delay: 0)
+                AnimationManager.showViewByIncreasingBorder(view: self.containerCircleView)
+                AnimationManager.showTheToast(message: GeneralStrings.failure.rawValue ,delay: 0,label: self.label, labelPosX: self.labelPosX , labelPosY: self.labelPosY)
                 self.returnToOlderPos()
             }
         }, onFailure: { error in
+            // error case
             self.draggableCircleView.isHidden = false
-            self.showContainerViewAfterLoading()
-            self.showTheToast(message: "Server Error ☹️ , Try again !!!",delay: 0)
+            AnimationManager.showViewByIncreasingBorder(view: self.containerCircleView)
+            AnimationManager.showTheToast(message: GeneralStrings.error.rawValue ,delay: 0, label: self.label, labelPosX: self.labelPosX , labelPosY: self.labelPosY)
             self.returnToOlderPos()
         })
     }
     
     
-    func hideContainerView() {
-        UIView.animate(withDuration: 2, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, animations: {
-            self.containerCircleView.center = CGPoint(x: self.containerCircleView.center.x, y: self.containerCircleView.center.y + 150)
-            self.containerCircleView.alpha = 0
-
-        })
-    }
     
-    func showTheToast(message:String, delay: Double) {
-        self.label.alpha = 0
-        self.label.text = message
-        self.label.center = CGPoint(x: labelPosX ?? 0.0, y: labelPosY ?? 0.0)
-        UIView.animate(withDuration: 1, delay: delay, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, animations: {
-            self.label.center = CGPoint(x: self.label.center.x, y: self.label.center.y - 80)
-            self.label.alpha = 1
-        
-        })
-    }
     
 }
 
