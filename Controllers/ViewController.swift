@@ -148,10 +148,12 @@ class ViewController: UIViewController {
             print("stopped")
             // This function checks, if the draggableCircle lies inside the cointainer cirle.
             if !Helper.checkIfViewLies(view: draggableCircleView, inside: containerCircleView) {
-                returnToOlderPos()
+                // Circle doesn't lie inside container circle.
+                returnTheCirlceToOlderPos()
                 AnimationManager.showTheToast(message: GenericMessages.unreached.rawValue , delay: 0, label: self.label, labelPosX: self.labelPosX , labelPosY: self.labelPosY)
             }
             else {
+                // Circle lies inside container circle , we can make api calls now.
                 resetCardView()
                 makeAnApiCall()
             }
@@ -161,7 +163,8 @@ class ViewController: UIViewController {
     }
     
     
-    func returnToOlderPos() {
+    func returnTheCirlceToOlderPos() {
+        
         AnimationManager.animateToOldPositions(view: self.draggableCircleView, completion: {
             self.resetCardView()
         })
@@ -194,14 +197,14 @@ class ViewController: UIViewController {
                 self.draggableCircleView.isHidden = false
                 AnimationManager.showViewByIncreasingBorder(view: self.containerCircleView)
                 AnimationManager.showTheToast(message: GenericMessages.failure.rawValue ,delay: 0,label: self.label, labelPosX: self.labelPosX , labelPosY: self.labelPosY)
-                self.returnToOlderPos()
+                self.returnTheCirlceToOlderPos()
             }
         }, onFailure: { error in
             // error case
             self.draggableCircleView.isHidden = false
             AnimationManager.showViewByIncreasingBorder(view: self.containerCircleView)
             AnimationManager.showTheToast(message: GenericMessages.error.rawValue ,delay: 0, label: self.label, labelPosX: self.labelPosX , labelPosY: self.labelPosY)
-            self.returnToOlderPos()
+            self.returnTheCirlceToOlderPos()
         })
     }
     
