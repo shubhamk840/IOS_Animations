@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum GeneralStrings: String {
+enum GenericMessages: String {
     case success = "Woohoo 🥳 !!! Its a success"
     case failure = "Success false ☹️"
     case error = "Server Error ☹️ , Try again !!!"

@@ -106,6 +106,12 @@ class ViewController: UIViewController {
         selectorView.layer.cornerRadius = 5
     }
     
+    func resetCardView() {
+        self.heightOfCard.constant = 288
+        self.widthOfTheCard.constant = 350
+        topSpaceForSelectorView.constant = 20
+    }
+    
     
     // Events listener and handlers
     
@@ -131,6 +137,7 @@ class ViewController: UIViewController {
         case .changed :
             print("dragging")
             let translation = gesture.translation(in: view)
+            // This condition is to avoid, the user, dragging ball in upward direction
             if translation.y >= 0 {
                 draggableCircleView.transform = CGAffineTransform(translationX: 0, y: translation.y)
                 heightOfCard.constant = 288 - translation.y / 10
@@ -139,14 +146,13 @@ class ViewController: UIViewController {
             }
         case .ended :
             print("stopped")
+            // This function checks, if the draggableCircle lies inside the cointainer cirle.
             if !Helper.checkIfViewLies(view: draggableCircleView, inside: containerCircleView) {
                 returnToOlderPos()
-                AnimationManager.showTheToast(message: GeneralStrings.unreached.rawValue , delay: 0, label: self.label, labelPosX: self.labelPosX , labelPosY: self.labelPosY)
+                AnimationManager.showTheToast(message: GenericMessages.unreached.rawValue , delay: 0, label: self.label, labelPosX: self.labelPosX , labelPosY: self.labelPosY)
             }
             else {
-                self.heightOfCard.constant = 288
-                self.widthOfTheCard.constant = 350
-                topSpaceForSelectorView.constant = 20
+                resetCardView()
                 makeAnApiCall()
             }
         default :
@@ -157,9 +163,7 @@ class ViewController: UIViewController {
     
     func returnToOlderPos() {
         AnimationManager.animateToOldPositions(view: self.draggableCircleView, completion: {
-            self.heightOfCard.constant = 288
-            self.widthOfTheCard.constant = 350
-            self.topSpaceForSelectorView.constant = 20
+            self.resetCardView()
         })
     }
     
@@ -183,20 +187,20 @@ class ViewController: UIViewController {
                 // success == true case
                 self.hideArrowView()
                 AnimationManager.hideContainerView(containerCircleView: self.containerCircleView)
-                AnimationManager.showTheToast(message: GeneralStrings.success.rawValue, delay: 1, label: self.label, labelPosX: self.labelPosX, labelPosY:  self.labelPosY)
+                AnimationManager.showTheToast(message: GenericMessages.success.rawValue, delay: 1, label: self.label, labelPosX: self.labelPosX, labelPosY:  self.labelPosY)
             }
             else {
                 // success == false case
                 self.draggableCircleView.isHidden = false
                 AnimationManager.showViewByIncreasingBorder(view: self.containerCircleView)
-                AnimationManager.showTheToast(message: GeneralStrings.failure.rawValue ,delay: 0,label: self.label, labelPosX: self.labelPosX , labelPosY: self.labelPosY)
+                AnimationManager.showTheToast(message: GenericMessages.failure.rawValue ,delay: 0,label: self.label, labelPosX: self.labelPosX , labelPosY: self.labelPosY)
                 self.returnToOlderPos()
             }
         }, onFailure: { error in
             // error case
             self.draggableCircleView.isHidden = false
             AnimationManager.showViewByIncreasingBorder(view: self.containerCircleView)
-            AnimationManager.showTheToast(message: GeneralStrings.error.rawValue ,delay: 0, label: self.label, labelPosX: self.labelPosX , labelPosY: self.labelPosY)
+            AnimationManager.showTheToast(message: GenericMessages.error.rawValue ,delay: 0, label: self.label, labelPosX: self.labelPosX , labelPosY: self.labelPosY)
             self.returnToOlderPos()
         })
     }
