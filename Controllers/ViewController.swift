@@ -27,6 +27,8 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Added the code to make Auto Layout out of frame constraints.
+        self.view.translatesAutoresizingMaskIntoConstraints = true
         makeUISetup()
         
     }
@@ -41,7 +43,7 @@ class ViewController: UIViewController {
     
     func setUpArrow() {
         let imageView = UIImageView(image: UIImage(named: "downArrow"))
-        imageView.frame = CGRect(x: cardView.frame.origin.x + cardView.frame.size.width/2 - 17+0.5, y: cardView.frame.size.height+200, width: 35, height: 25)
+        imageView.frame = CGRect(x: self.view.frame.width/2 - 17+0.5, y: cardView.frame.size.height+cardView.frame.size.height/2, width: 35, height: 25)
         arrowView = imageView
         arrowView.layer.zPosition = 0
         AnimationManager.addBlinkingEffect(On: arrowView)
@@ -54,7 +56,7 @@ class ViewController: UIViewController {
     
     
     func createAToastView() {
-        label = UILabel(frame: CGRect(x: cardView.frame.origin.x + cardView.frame.size.width/2 - 150+0.5, y: cardView.frame.size.height+20, width: 300, height: 20))
+        label = UILabel(frame: CGRect(x: view.frame.width/2 - 150, y: cardView.frame.size.height+20, width: 300, height: 20))
         labelPosX = label.center.x
         labelPosY = label.center.y
         label.textAlignment = .center
@@ -72,7 +74,7 @@ class ViewController: UIViewController {
         cardView.layer.cornerRadius = 5
         containerCircleView.layer.cornerRadius = 55
         let diameterOfCircle:CGFloat = 100
-        let view = UIView(frame: CGRect(x: cardView.frame.origin.x + cardView.frame.size.width/2 - 50+0.5, y: cardView.frame.size.height+20, width: diameterOfCircle, height: diameterOfCircle))
+        let view = UIView(frame: CGRect(x: view.frame.size.width/2 - 50+0.5, y: cardView.frame.size.height + cardView.frame.origin.y - 50/2, width: diameterOfCircle, height: diameterOfCircle))
         
         //Adding cred's logo on the draggableCiricleView
         
